@@ -186,10 +186,14 @@ function update() {
         koEl.innerText = data.ko;
     }
 
-    // 별표 버튼 상태
-    let starBtn = document.getElementById('star-btn');
+    // 7. ★ 별표 버튼 상태 업데이트 ★
+    const starBtn = document.getElementById('star-btn');
+    
     if (starBtn && data.id) {
-        starBtn.classList.toggle('active', starList.includes(String(data.id)));
+        const starStorageKey = `stars_${lang}`;
+        const starList = JSON.parse(localStorage.getItem(starStorageKey) || "[]").map(s => String(s));
+        const isStarred = starList.includes(String(data.id));
+        starBtn.classList.toggle('active', isStarred);
     }
 
     // 완료 체크 상태
