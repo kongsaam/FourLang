@@ -2,6 +2,7 @@
 let sentences = [];   // masterdata.json의 sentences 데이터를 저장
 let dictionary = {};  // masterdata.json의 dictionary 데이터를 저장
 let idx = 0;          // 현재 문장 번호 (0부터 시작)
+const noSleep = new NoSleep();
 
 var lang = 'en', run = false, t1, t2;
 var isRepeatOne = false;
@@ -309,7 +310,14 @@ function toggle() {
     document.getElementById('playIcon').style.display = run ? "none" : "block";
     document.getElementById('stopIcon').style.display = run ? "block" : "none";
     document.getElementById('tBtn').classList.toggle('active', run);
-    if (run) loop(); else resetTimer();
+    if (run) {
+        noSleep.enable();
+        console.log("백그라운드 유지 활성화");
+        loop(); 
+    } else {
+        noSleep.disable();
+        console.log("백그라운드 유지 비활성화");
+        resetTimer();
 }
 
 function loop() {
