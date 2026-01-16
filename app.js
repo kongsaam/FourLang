@@ -306,18 +306,45 @@ function updateTheme(count) {
 
 // [10] TTS 및 자동재생 제어
 function toggle() {
+    // 1. 상태 전환
     run = !run;
+
+    // 2. UI 및 아이콘 변경
     document.getElementById('playIcon').style.display = run ? "none" : "block";
     document.getElementById('stopIcon').style.display = run ? "block" : "none";
     document.getElementById('tBtn').classList.toggle('active', run);
+
     if (run) {
+        // 3. 학습 시작 시 처리
+        
+        // [핵심 1] 노슬립 활성화 (가짜 비디오 재생으로 깨움)
+        noSleep.enable(); 
+
+        // [핵심 2] Media Session 설정 (잠금 화면 컨트롤러 생성)
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: '4개국어 회화 학습',
+                artist: 'GitHub Pages App',
+                album: '공부 중'
+            });
+            navigator.mediaSession.playbackState = 'playing';
+        }
+
+        // [핵심 3] 기존 학습 로직 실행
         loop(); 
-        noSleep.enable();
-        console.log("백그라운드 유지 활성화");
+        console.log("학습 시작 및 백그라운드 모드 활성화");
+
     } else {
+        // 4. 학습 정지 시 처리
+        
+        // 노슬립 비활성화 및 미디어 상태 정지
         noSleep.disable();
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused';
+        }
+
         resetTimer();
-        console.log("학습 중단");
+        console.log("학습 정지");
     }
 }
 
