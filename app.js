@@ -3,8 +3,8 @@ let sentences = [];   // masterdata.json의 sentences 데이터를 저장
 let dictionary = {};  // masterdata.json의 dictionary 데이터를 저장
 let idx = 0;          // 현재 문장 번호 (0부터 시작)
 var noSleep = new NoSleep();
-var silenceAudio = new Audio("https://raw.githubusercontent.com/anars/blank-audio/master/1-second-of-silence.mp3");
-silenceAudio.loop = true;
+const tickAudio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAP8A");
+tickAudio.loop = true;
 
 var lang = 'en', run = false, t1, t2;
 var isRepeatOne = false;
@@ -318,9 +318,9 @@ function toggle() {
 
     if (run) {
         noSleep.enable(); 
-        silenceAudio.play().then(() => {
+        tickAudio.play().then(() => {
             loop(); 
-        }).catch(e => console.log("채널 확보 실패", e));
+        });
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
@@ -332,7 +332,7 @@ function toggle() {
         }
     } else {
         noSleep.disable();
-        silenceAudio.pause();
+        tickAudio.pause();
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = 'paused';
         }
@@ -352,9 +352,11 @@ function resetTimer() { clearTimeout(t1); clearTimeout(t2); window.speechSynthes
 function speak(e) {
     if (e) e.stopPropagation();
     window.speechSynthesis.cancel();
-    const msg = new SpeechSynthesisUtterance(sentences[idx][lang]);
-    msg.lang = { en: 'en-US', cn: 'zh-CN', jp: 'ja-JP', es: 'es-ES' }[lang];
+    tickAudio.play().then(() => {
+        const msg = new SpeechSynthesisUtterance(sentences[idx][lang]);
+        msg.lang = { en: 'en-US', cn: 'zh-CN', jp: 'ja-JP', es: 'es-ES' }[lang];
     window.speechSynthesis.speak(msg);
+    });
 }
 
 function speakWord(w, l) {
