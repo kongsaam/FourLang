@@ -3,6 +3,8 @@ let sentences = [];   // masterdata.json의 sentences 데이터를 저장
 let dictionary = {};  // masterdata.json의 dictionary 데이터를 저장
 let idx = 0;          // 현재 문장 번호 (0부터 시작)
 var noSleep = new NoSleep();
+var silenceAudio = new Audio("https://raw.githubusercontent.com/anars/blank-audio/master/10-seconds-of-silence.mp3");
+silenceAudio.loop = true;
 
 var lang = 'en', run = false, t1, t2;
 var isRepeatOne = false;
@@ -315,36 +317,31 @@ function toggle() {
     document.getElementById('tBtn').classList.toggle('active', run);
 
     if (run) {
-        // 3. 학습 시작 시 처리
-        
-        // [핵심 1] 노슬립 활성화 (가짜 비디오 재생으로 깨움)
         noSleep.enable(); 
+        silenceAudio.play().catch(e => console.log("무음 재생 실패:", e));
 
-        // [핵심 2] Media Session 설정 (잠금 화면 컨트롤러 생성)
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: '4개국어 회화 학습',
-                artist: 'GitHub Pages App',
-                album: '공부 중'
+                title: 'FourLang',
+                artist: 'Congsaam',
+                album: 'BackGround Mode'
             });
             navigator.mediaSession.playbackState = 'playing';
         }
 
-        // [핵심 3] 기존 학습 로직 실행
+        // 4. 실제 학습 데이터 로직 실행
         loop(); 
-        console.log("학습 시작 및 백그라운드 모드 활성화");
+        console.log("백그라운드 완전 유지 모드 시작");
 
     } else {
-        // 4. 학습 정지 시 처리
-        
-        // 노슬립 비활성화 및 미디어 상태 정지
+        // 중단 시 모든 기능 해제
         noSleep.disable();
+        silenceAudio.pause();
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = 'paused';
         }
-
         resetTimer();
-        console.log("학습 정지");
+        console.log("학습 중단");
     }
 }
 
