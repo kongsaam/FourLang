@@ -184,12 +184,16 @@ function update() {
     const koEl = document.getElementById('ko');
     if (koEl) {
         koEl.classList.remove('visible', 'no-transition');
-        koEl.innerText = data.ko;
+        if (run) {
+            koEl.innerText = '';
+        } else {
+            koEl.innerText = data.ko;
+        }
     }
 
     // 7. ★ 별표 버튼 상태 업데이트 ★
     const starBtn = document.getElementById('star-btn');
-    
+
     if (starBtn && data.id) {
         const starStorageKey = `stars_${lang}`;
         const starList = JSON.parse(localStorage.getItem(starStorageKey) || "[]").map(s => String(s));
@@ -315,9 +319,9 @@ function toggle() {
     document.getElementById('tBtn').classList.toggle('active', run);
 
     if (run) {
-        noSleep.enable(); 
-        loop(); 
-        
+        noSleep.enable();
+        loop();
+
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: 'FourLang',
@@ -333,9 +337,30 @@ function toggle() {
 
 function loop() {
     if (!run) return;
-    update(); speak();
-    t1 = setTimeout(() => document.getElementById('ko').classList.add('visible'), 3000);
-    t2 = setTimeout(() => { if (!isRepeatOne) idx = (idx + 1) % totalCount; loop(); }, 8000);
+    update(); 
+    speak();
+
+    t1 = setTimeout(() => {
+        const koEl = document.getElementById('ko');
+        
+        const starStorageKey = `stars_${lang}`;
+        const starList = JSON.parse(localStorage.getItem(starStorageKey) || "[]").map(s => String(s));
+        const currentList = isStarMode
+            ? sentences.filter(item => item.id && starList.includes(String(item.id)))
+            : sentences;
+        
+        const data = currentList[idx];
+
+        if (koEl && data) {
+            koEl.innerText = data.ko; // 비어있는 칸에 해석을 채움
+            koEl.classList.add('visible'); // 서서히 보이게 함
+        }
+    }, 3000);
+
+    t2 = setTimeout(() => {
+        if (!isRepeatOne) idx = (idx + 1) % totalCount;
+        loop();
+    }, 8000);
 }
 
 function resetTimer() { clearTimeout(t1); clearTimeout(t2); window.speechSynthesis.cancel(); }
@@ -356,8 +381,8 @@ function speakWord(w, l) {
 }
 
 // [11] 이동 및 기타 보조 함수
-function prev() { resetTimer(); idx = (idx - 1 + totalCount) % totalCount; update(); if (run) loop(); }
-function next() { resetTimer(); idx = (idx + 1) % totalCount; update(); if (run) loop(); }
+function prev() { resetTimer(); idx = (idx - 1 + totalCount) % totalCount; if (run) { loop(); } else { update(); } }
+function next() { resetTimer(); idx = (idx + 1) % totalCount; if (run) { loop(); } else { update(); } }
 
 function setLang(l) {
     localStorage.setItem('lastLang', l); lang = l;
