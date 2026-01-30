@@ -130,11 +130,25 @@ function closeHelp() {
 
 // 배경 클릭 시 닫기 기능 추가 (선택)
 window.onclick = function (event) {
-    const modal = document.getElementById('help-modal');
-    if (event.target == modal) {
+    const helpModal = document.getElementById('help-modal');
+    const wordModalOverlay = document.getElementById('modal-overlay');
+    const levelModal = document.getElementById('level-up-modal');
+
+    // 1. 도움말 모달 배경 클릭 시
+    if (event.target === helpModal) {
         closeHelp();
     }
-}
+    
+    // 2. 단어 사전 모달 배경(오버레이) 클릭 시
+    if (event.target === wordModalOverlay) {
+        closeModal();
+    }
+
+    // 3. 레벨업 모달 배경 클릭 시
+    if (event.target === levelModal) {
+        closeLvlModal();
+    }
+};
 
 // [6] 핵심 화면 갱신 함수
 function update() {
@@ -280,23 +294,12 @@ function showLevelUpModal(newName) {
     document.getElementById('level-up-modal').classList.add('active');
 }
 
-function closeLvlUpModal() {
-    const overlay = document.querySelector('.modal-overlay-new');
+function closeLvlModal() {
     const modal = document.getElementById('level-up-modal');
-
-    if (modal) modal.classList.remove('active');
-    if (overlay) overlay.classList.remove('active');
-}
-
-document.addEventListener('click', function (e) {
-    const modal = document.getElementById('level-up-modal');
-    if (!modal) return;
-
-    // 모달이 열려 있고, 배경(overlay)을 클릭했을 때만 닫기
-    if (modal.classList.contains('active') && e.target === modal) {
+    if (modal) {
         modal.classList.remove('active');
     }
-});
+}
 
 // [9] 스트릭 및 테마
 function updateStreak() {
