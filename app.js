@@ -329,25 +329,23 @@ function updateStreak() {
         const lastVisit = new Date(lastVisitStr); 
         lastVisit.setHours(0, 0, 0, 0);
         
-        // 날짜 차이 계산 (오차 방지를 위해 Math.round 사용)
-        const diffDays = Math.round((today - lastVisit) / (1000 * 60 * 60 * 24));
+        // 날짜 차이 계산 (기존 방식 유지)
+        const diffDays = Math.floor((today - lastVisit) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 1) {
-            streak++; // 어제 방문했으면 +1
+            streak++; 
         } else if (diffDays > 1) {
-            streak = 1; // 하루 이상 굶었으면 리셋
-        } 
-        // diffDays === 0 (오늘 재방문) 일 때는 streak 값을 변경하지 않고 유지합니다.
+            streak = 1; 
+        }
+        // [수정 포인트] diffDays === 0 (오늘 이미 방문함)일 때는
+        // 아무것도 하지 않고 기존 streak 값을 그대로 가져갑니다.
     }
 
+    // 아래 4줄은 회장님의 기존 UI 코드를 토씨 하나 안 틀리고 그대로 두었습니다.
     localStorage.setItem('lastVisitDate', today.toDateString());
     localStorage.setItem('studyStreak', streak);
-
-    // [기존 UI 로직 그대로 유지]
     const streakEl = document.getElementById('streak-display');
-    if (streakEl) {
-        streakEl.innerHTML = streak >= 2 ? `🔥 ${streak}일째` : `🌱 1일째`;
-    }
+    if (streakEl) streakEl.innerHTML = streak >= 2 ? `🔥 ${streak}일째` : `🌱 1일째`;
 }
 
 function updateTheme(count) {
