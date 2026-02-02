@@ -302,40 +302,48 @@ function closeLvlModal() {
 }
 
 // [9] 스트릭 및 테마
+/* function updateStreak() {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const lastVisitStr = localStorage.getItem('lastVisitDate');
+    let streak = parseInt(localStorage.getItem('studyStreak') || "0");
+    if (!lastVisitStr) streak = 1;
+    else {
+        const lastVisit = new Date(lastVisitStr); lastVisit.setHours(0, 0, 0, 0);
+        const diffDays = Math.floor((today - lastVisit) / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) streak++; else if (diffDays > 1) streak = 1;
+    }
+    localStorage.setItem('lastVisitDate', today.toDateString());
+    localStorage.setItem('studyStreak', streak);
+    const streakEl = document.getElementById('streak-display');
+    if (streakEl) streakEl.innerHTML = streak >= 2 ? `🔥 ${streak}일째` : `🌱 1일째`;
+} */
+
 function updateStreak() {
-    const now = new Date();
-    const todayStr = now.toDateString(); // 비교를 위한 날짜 문자열 (시간 제외)
+    const today = new Date(); today.setHours(0, 0, 0, 0);
     const lastVisitStr = localStorage.getItem('lastVisitDate');
     let streak = parseInt(localStorage.getItem('studyStreak') || "0");
 
     if (!lastVisitStr) {
-        // [케이스 1] 처음 방문
         streak = 1;
     } else {
-        const lastVisit = new Date(lastVisitStr);
-        const today = new Date(todayStr);
+        const lastVisit = new Date(lastVisitStr); 
+        lastVisit.setHours(0, 0, 0, 0);
         
-        // 날짜 차이 계산 (밀리초 -> 일 단위)
-        const diffTime = today.getTime() - lastVisit.getTime();
-        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        // 날짜 차이 계산 (오차 방지를 위해 Math.round 사용)
+        const diffDays = Math.round((today - lastVisit) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 1) {
-            // [케이스 2] 어제 오고 오늘 처음 옴 -> 스트릭 증가
-            streak++;
+            streak++; // 어제 방문했으면 +1
         } else if (diffDays > 1) {
-            // [케이스 3] 하루 이상 건너뜀 -> 스트릭 리셋
-            streak = 1;
-        } else if (diffDays === 0) {
-            // [케이스 4] 오늘 이미 방문함 -> 기존 스트릭 유지 (아무것도 안 함)
-            // 이 부분이 빠져있어서 기존에 정상동작을 안 했던 것입니다.
-            return; 
-        }
+            streak = 1; // 하루 이상 굶었으면 리셋
+        } 
+        // diffDays === 0 (오늘 재방문) 일 때는 streak 값을 변경하지 않고 유지합니다.
     }
 
-    // 데이터 저장 및 UI 업데이트
-    localStorage.setItem('lastVisitDate', todayStr);
+    localStorage.setItem('lastVisitDate', today.toDateString());
     localStorage.setItem('studyStreak', streak);
-    
+
+    // [기존 UI 로직 그대로 유지]
     const streakEl = document.getElementById('streak-display');
     if (streakEl) {
         streakEl.innerHTML = streak >= 2 ? `🔥 ${streak}일째` : `🌱 1일째`;
